@@ -2,34 +2,45 @@ package edu.whccd.evaldez;
 
 import java.util.Scanner;
 import java.text.NumberFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /*
-    The purpose of this application is to replicate the code in Figure 3-13.
+    The purpose of this application is to replicate the code in Figure 3-17.
     author: Evander Valdez
 */
 public class Main {
 
     public static void main(String[] args) {
 
-        final double SALES_TAX_PCT = .05;
+        final BigDecimal SALES_TAX_PCT = new BigDecimal(".05");
 
         Scanner sc = new Scanner(System.in);
         String choice = "y";
         while (choice.equalsIgnoreCase("y")) {
             //get the input from the user
-            System.out.print("Enter subtotal : ");
-            double subtotal = sc.nextDouble();
+            System.out.print("Enter subtotal :\t");
+            String subtotalString = sc.next();
+
+            // create the BigDecimal objects for subtotal and discount percent
+            BigDecimal subtotal = new BigDecimal(subtotalString);
+            BigDecimal discountPercent;
+            if (subtotal.doubleValue() >= 100)
+            {
+                discountPercent = new BigDecimal(".1");
+            }
+            else
+            {
+                discountPercent = new BigDecimal("0.0");
+            }
 
             //calculate the results
-            double discountPercent = 0.0;
-            if (subtotal >= 100)
-                discountPercent = .1;
-            else
-                discountPercent = 0.0;
-            double discountAmount = subtotal * discountPercent;
-            double totalBeforeTax = subtotal - discountAmount;
-            double salesTax = totalBeforeTax * SALES_TAX_PCT;
-            double total = totalBeforeTax + salesTax;
+            BigDecimal discountAmount = subtotal.multiply(discountPercent)
+                    .setScale(2,RoundingMode.HALF_UP);
+            BigDecimal totalBeforeTax = subtotal.subtract(discountAmount);
+            BigDecimal salesTax = SALES_TAX_PCT.multiply(totalBeforeTax)
+                    .setScale(2, RoundingMode.HALF_UP);
+            BigDecimal total = totalBeforeTax.add(salesTax);
 
             //format and display the results
             NumberFormat currency = NumberFormat.getCurrencyInstance();
